@@ -1,6 +1,26 @@
-# 🚀 Student API - Postman Testing Guide
+# 🚀 Student API - Testing Guide (Postman & Frontend)
 
-## 📥 STEP 1: Open Postman
+## 🎨 OPTION 1: Use the Web Dashboard (Easiest!)
+
+### Access the Frontend Interface
+**URL:** `http://127.0.0.1:8000/` or your Codespace URL
+
+The web dashboard provides a user-friendly interface where you can:
+- ✅ View all students in a table
+- ✅ Add new students with a form
+- ✅ Edit existing students
+- ✅ Delete students
+- ✅ Search and filter students
+- ✅ See real-time statistics (total students, average marks, etc.)
+- ✅ View grade badges (A+, A, B, C, D, F)
+
+**No API knowledge required!** Just point and click.
+
+---
+
+## 🛠️ OPTION 2: Test API with Postman (For API Testing)
+
+### 📥 STEP 1: Open Postman
 
 If you don't have Postman installed:
 1. Go to https://www.postman.com/downloads/

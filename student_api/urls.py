@@ -17,12 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
+from django.shortcuts import render
+
+def frontend_view(request):
+    """Render the frontend dashboard"""
+    return render(request, 'index.html')
 
 def api_home(request):
-    """Welcome page for the API"""
+    """API documentation endpoint"""
     return JsonResponse({
         'message': 'Welcome to Student Management API',
         'version': '1.0',
+        'frontend': '/',
         'endpoints': {
             'students': '/students/',
             'get_all': 'GET /students/',
@@ -35,7 +41,8 @@ def api_home(request):
     })
 
 urlpatterns = [
-    path('', api_home, name='home'),
+    path('', frontend_view, name='frontend'),
+    path('api/', api_home, name='api_home'),
     path('admin/', admin.site.urls),
     path('students/', include('students.urls')),
 ]
