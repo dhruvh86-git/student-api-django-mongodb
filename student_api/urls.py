@@ -16,8 +16,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import JsonResponse
+
+def api_home(request):
+    """Welcome page for the API"""
+    return JsonResponse({
+        'message': 'Welcome to Student Management API',
+        'version': '1.0',
+        'endpoints': {
+            'students': '/students/',
+            'get_all': 'GET /students/',
+            'get_one': 'GET /students/{roll_no}/',
+            'create': 'POST /students/',
+            'update': 'PUT/PATCH /students/{roll_no}/',
+            'delete': 'DELETE /students/{roll_no}/',
+        },
+        'documentation': 'See README.md for full documentation'
+    })
 
 urlpatterns = [
+    path('', api_home, name='home'),
     path('admin/', admin.site.urls),
     path('students/', include('students.urls')),
 ]

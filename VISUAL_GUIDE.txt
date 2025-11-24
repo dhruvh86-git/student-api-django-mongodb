@@ -1,0 +1,344 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    STUDENT API - DATA FLOW DIAGRAM                   │
+└─────────────────────────────────────────────────────────────────────┘
+
+1. CREATE STUDENT (POST /students/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Client (Postman/Browser)
+    │
+    │ POST http://127.0.0.1:8000/students/
+    │ {
+    │   "name": "John Doe",
+    │   "roll_no": 101,
+    │   "course": "CS",
+    │   "marks": 85,
+    │   "email": "john@example.com"
+    │ }
+    ↓
+┌───────────────────────┐
+│  student_api/urls.py  │  ← Routes to /students/
+└───────────────────────┘
+    ↓
+┌───────────────────────┐
+│   students/urls.py    │  ← Router maps POST to create()
+└───────────────────────┘
+    ↓
+┌───────────────────────┐
+│  students/views.py    │
+│  def create():        │
+│    1. Get data        │  ← Business logic
+│    2. Validate        │
+│    3. Check duplicates│
+│    4. Insert to DB    │
+└───────────────────────┘
+    ↓
+┌───────────────────────┐
+│ serializers.py        │
+│ StudentSerializer     │  ← Validates:
+│  - name (required)    │     • Data types
+│  - roll_no (int)      │     • Required fields
+│  - marks (0-100)      │     • Value ranges
+│  - email (valid)      │     • Email format
+└───────────────────────┘
+    ↓
+┌───────────────────────┐
+│   MongoDB Database    │
+│   student_db          │  ← Stores:
+│   ├── students        │     {
+│   │   ├── _id        │       "_id": ObjectId("..."),
+│   │   ├── name       │       "name": "John Doe",
+│   │   ├── roll_no    │       "roll_no": 101,
+│   │   ├── course     │       "course": "CS",
+│   │   ├── marks      │       "marks": 85,
+│   │   └── email      │       "email": "john@example.com"
+└───────────────────────┘     }
+    ↓
+Response to Client:
+{
+  "message": "Student created successfully",
+  "data": {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "John Doe",
+    "roll_no": 101,
+    "course": "CS",
+    "marks": 85,
+    "email": "john@example.com"
+  }
+}
+
+
+2. GET ALL STUDENTS (GET /students/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Client
+    │ GET http://127.0.0.1:8000/students/
+    ↓
+Router → students/views.py → list()
+    ↓
+MongoDB: db.students.find()
+    ↓
+Returns: Array of all students
+{
+  "message": "Students retrieved successfully",
+  "count": 5,
+  "data": [
+    {"id": "...", "name": "John", "roll_no": 101, ...},
+    {"id": "...", "name": "Jane", "roll_no": 102, ...},
+    ...
+  ]
+}
+
+
+3. GET ONE STUDENT (GET /students/101/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Client
+    │ GET http://127.0.0.1:8000/students/101/
+    ↓
+Router → students/views.py → retrieve(roll_no=101)
+    ↓
+MongoDB: db.students.find_one({"roll_no": 101})
+    ↓
+Returns: Single student or 404 if not found
+
+
+4. UPDATE STUDENT (PATCH /students/101/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Client
+    │ PATCH http://127.0.0.1:8000/students/101/
+    │ {"marks": 95}
+    ↓
+Router → students/views.py → partial_update(roll_no=101)
+    ↓
+Validate new data → Serializer
+    ↓
+MongoDB: db.students.update_one(
+    {"roll_no": 101},
+    {"$set": {"marks": 95}}
+)
+    ↓
+Returns: Updated student data
+
+
+5. DELETE STUDENT (DELETE /students/101/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Client
+    │ DELETE http://127.0.0.1:8000/students/101/
+    ↓
+Router → students/views.py → destroy(roll_no=101)
+    ↓
+MongoDB: db.students.delete_one({"roll_no": 101})
+    ↓
+Returns: Success message
+
+
+═══════════════════════════════════════════════════════════════════════
+                            FILE STRUCTURE
+═══════════════════════════════════════════════════════════════════════
+
+student-api-django-mongodb/
+│
+├── manage.py                 ← Django command-line tool
+│                               Run: python manage.py runserver
+│
+├── student_api/              ← Main project directory
+│   ├── settings.py          ← Configuration
+│   │                           • INSTALLED_APPS (Django apps)
+│   │                           • DATABASES (SQLite for Django)
+│   │                           • MONGODB_URI (MongoDB connection)
+│   │                           • REST_FRAMEWORK (DRF settings)
+│   │
+│   └── urls.py              ← Main URL routing
+│                               path('students/', include('students.urls'))
+│
+├── students/                 ← Students app
+│   │
+│   ├── models.py            ← Data schema (commented)
+│   │                           # MongoDB schema definition
+│   │
+│   ├── serializers.py       ← Data validation
+│   │                           class StudentSerializer:
+│   │                             • Validates data types
+│   │                             • Checks required fields
+│   │                             • Enforces constraints
+│   │
+│   ├── views.py             ← Business logic (CRUD)
+│   │                           class StudentViewSet:
+│   │                             • create() - Add student
+│   │                             • list() - Get all
+│   │                             • retrieve() - Get one
+│   │                             • update() - Modify
+│   │                             • destroy() - Delete
+│   │
+│   └── urls.py              ← App routing
+│                               Router connects URLs to views
+│
+├── requirements.txt          ← Python dependencies
+│   Django==4.2.7
+│   djangorestframework==3.14.0
+│   pymongo==4.6.1
+│
+├── test_api.sh              ← Automated test script
+└── INTERVIEW_GUIDE.md       ← This guide!
+
+
+═══════════════════════════════════════════════════════════════════════
+                        MONGODB SCHEMA EXAMPLE
+═══════════════════════════════════════════════════════════════════════
+
+Database: student_db
+Collection: students
+
+Document structure:
+{
+  "_id": ObjectId("507f1f77bcf86cd799439011"),  ← Auto-generated by MongoDB
+  "name": "John Doe",                            ← String, required
+  "roll_no": 101,                                ← Integer, unique, required
+  "course": "Computer Science",                  ← String, required
+  "marks": 85,                                   ← Integer (0-100), required
+  "email": "john.doe@example.com"               ← String, unique, required
+}
+
+Indexes:
+• roll_no (unique) - Fast lookups by roll number
+• email (unique) - Prevents duplicate emails
+
+
+═══════════════════════════════════════════════════════════════════════
+                         ERROR HANDLING FLOW
+═══════════════════════════════════════════════════════════════════════
+
+Validation Layers:
+
+1. SERIALIZER LEVEL
+   ├── Type validation (int, str, email)
+   ├── Required field check
+   ├── Range validation (marks 0-100)
+   └── Format validation (email format)
+   
+2. VIEW LEVEL
+   ├── Duplicate check (roll_no, email)
+   ├── Existence check (for update/delete)
+   └── Try-catch blocks
+   
+3. DATABASE LEVEL
+   └── Unique indexes (roll_no, email)
+
+Example Error Responses:
+
+❌ Missing field:
+{
+  "error": "Validation failed",
+  "details": "This field is required."
+}
+
+❌ Duplicate roll number:
+{
+  "error": "Failed to create student",
+  "details": "Student with this roll number already exists"
+}
+
+❌ Student not found:
+{
+  "error": "Student not found",
+  "details": "Student with roll number 999 does not exist"
+}
+
+
+═══════════════════════════════════════════════════════════════════════
+                        HTTP STATUS CODES USED
+═══════════════════════════════════════════════════════════════════════
+
+✅ 200 OK              - Successful GET, PUT, PATCH, DELETE
+✅ 201 Created         - Successful POST (student created)
+❌ 400 Bad Request     - Validation error, invalid data
+❌ 404 Not Found       - Student doesn't exist
+❌ 500 Server Error    - Unexpected server error
+
+
+═══════════════════════════════════════════════════════════════════════
+                     TECHNOLOGY STACK BREAKDOWN
+═══════════════════════════════════════════════════════════════════════
+
+Backend Framework:
+  Django 4.2.7
+    ↓
+  Django REST Framework 3.14.0
+    • Serializers (validation)
+    • ViewSets (CRUD logic)
+    • Routers (URL mapping)
+    • JSON rendering
+
+Database:
+  MongoDB 7.0.26
+    ↓
+  PyMongo 4.6.1
+    • Direct MongoDB access
+    • No ORM overhead
+    • Full control over queries
+
+Development Environment:
+  • GitHub Codespaces (Ubuntu)
+  • Python 3.12
+  • Virtual environment support
+
+
+═══════════════════════════════════════════════════════════════════════
+                      COMPARISON WITH ALTERNATIVES
+═══════════════════════════════════════════════════════════════════════
+
+Why Django REST Framework?
+  ✅ Built-in serialization
+  ✅ Automatic API documentation
+  ✅ Authentication support
+  ✅ Large community
+  
+  vs Flask:
+    • More features out-of-the-box
+    • Better for complex APIs
+    
+  vs FastAPI:
+    • More mature ecosystem
+    • Better ORM support
+
+Why MongoDB?
+  ✅ Flexible schema
+  ✅ JSON-native
+  ✅ Easy to scale
+  ✅ Fast reads
+  
+  vs PostgreSQL:
+    • No complex joins needed here
+    • Simpler for document storage
+    
+  Trade-off:
+    • Less ACID compliance
+    • No built-in relationships
+
+
+═══════════════════════════════════════════════════════════════════════
+                          QUICK REFERENCE
+═══════════════════════════════════════════════════════════════════════
+
+Start Services:
+  MongoDB:  mongod --dbpath /data/db --fork --logpath /data/db/mongodb.log
+  Django:   python manage.py runserver
+
+Stop Services:
+  Django:   pkill -f runserver
+  MongoDB:  mongod --shutdown --dbpath /data/db
+
+Test API:
+  All tests:  ./test_api.sh
+  Single:     curl http://127.0.0.1:8000/students/
+
+Check Status:
+  MongoDB:    pgrep -x mongod
+  Django:     pgrep -f runserver
+  Data:       mongosh student_db --eval "db.students.find().pretty()"
+
+Clear Data:
+  mongosh student_db --eval "db.students.deleteMany({})"

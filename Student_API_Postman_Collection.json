@@ -1,0 +1,236 @@
+{
+  "info": {
+    "name": "Student Management API",
+    "description": "Complete CRUD API for managing student records with Django REST Framework and MongoDB",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create Student",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe\",\n  \"roll_no\": 101,\n  \"course\": \"Computer Science\",\n  \"marks\": 85,\n  \"email\": \"john.doe@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", ""]
+        },
+        "description": "Create a new student record with validation"
+      }
+    },
+    {
+      "name": "2. Create Another Student",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Jane Smith\",\n  \"roll_no\": 102,\n  \"course\": \"Data Science\",\n  \"marks\": 92,\n  \"email\": \"jane.smith@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", ""]
+        }
+      }
+    },
+    {
+      "name": "3. Get All Students",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", ""]
+        },
+        "description": "Retrieve all student records"
+      }
+    },
+    {
+      "name": "4. Get Student by Roll Number",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/101/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", "101", ""]
+        },
+        "description": "Get a specific student by roll number"
+      }
+    },
+    {
+      "name": "5. Update Student (Partial - PATCH)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"marks\": 95\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/101/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", "101", ""]
+        },
+        "description": "Partial update - only send fields to change"
+      }
+    },
+    {
+      "name": "6. Update Student (Full - PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"roll_no\": 101,\n  \"course\": \"Computer Science\",\n  \"marks\": 90,\n  \"email\": \"john.doe@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/101/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", "101", ""]
+        },
+        "description": "Full update - requires all fields"
+      }
+    },
+    {
+      "name": "7. Delete Student",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/102/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", "102", ""]
+        },
+        "description": "Delete a student by roll number"
+      }
+    },
+    {
+      "name": "ERROR: Student Not Found (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/999/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", "999", ""]
+        },
+        "description": "Test error handling for non-existent student"
+      }
+    },
+    {
+      "name": "ERROR: Duplicate Roll Number (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test User\",\n  \"roll_no\": 101,\n  \"course\": \"Testing\",\n  \"marks\": 80,\n  \"email\": \"test@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", ""]
+        },
+        "description": "Test duplicate roll number validation"
+      }
+    },
+    {
+      "name": "ERROR: Invalid Marks (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Invalid Student\",\n  \"roll_no\": 105,\n  \"course\": \"Testing\",\n  \"marks\": 150,\n  \"email\": \"invalid@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", ""]
+        },
+        "description": "Test marks validation (must be 0-100)"
+      }
+    },
+    {
+      "name": "ERROR: Missing Required Fields (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Incomplete Student\",\n  \"roll_no\": 106\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/students/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["students", ""]
+        },
+        "description": "Test required field validation"
+      }
+    }
+  ]
+}
